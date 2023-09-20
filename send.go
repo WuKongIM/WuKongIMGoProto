@@ -11,6 +11,7 @@ type SendPacket struct {
 	Framer
 	Setting     Setting
 	MsgKey      string // 用于验证此消息是否合法（仿中间人篡改）
+	Expire      uint32 // 消息过期时间 0 表示永不过期
 	ClientSeq   uint64 // 客户端提供的序列号，在客户端内唯一
 	ClientMsgNo string // 客户端消息唯一编号一般是uuid，为了去重
 	StreamNo    string // 流式编号
@@ -31,7 +32,7 @@ func (s *SendPacket) GetFrameType() FrameType {
 }
 
 func (s *SendPacket) String() string {
-	return fmt.Sprintf("Setting:%v MsgKey:%s ClientSeq:%d ClientMsgNo:%s ChannelId:%s ChannelType:%d Topic:%s Payload:%s", s.Setting, s.MsgKey, s.ClientSeq, s.ClientMsgNo, s.ChannelID, s.ChannelType, s.Topic, string(s.Payload))
+	return fmt.Sprintf("Setting:%v MsgKey:%s Expire: %d ClientSeq:%d ClientMsgNo:%s ChannelId:%s ChannelType:%d Topic:%s Payload:%s", s.Setting, s.MsgKey, s.Expire, s.ClientSeq, s.ClientMsgNo, s.ChannelID, s.ChannelType, s.Topic, string(s.Payload))
 }
 
 // func (s *SendPacket) reset() {
@@ -106,6 +107,13 @@ func decodeSend(frame Frame, data []byte, version uint8) (Frame, error) {
 
 		return nil, errors.Wrap(err, "解码ChannelType失败！")
 	}
+	// 消息过期时间
+	if version >= 3 {
+		if sendPacket.Expire, err = dec.Uint32(); err != nil {
+			return nil, errors.Wrap(err, "解码Expire失败！")
+		}
+	}
+
 	// msg key
 	if sendPacket.MsgKey, err = dec.String(); err != nil {
 		return nil, errors.Wrap(err, "解码MsgKey失败！")
@@ -139,6 +147,10 @@ func encodeSend(frame Frame, enc *Encoder, version uint8) error {
 	enc.WriteString(sendPacket.ChannelID)
 	// 频道类型
 	enc.WriteUint8(sendPacket.ChannelType)
+	// 消息过期时间
+	if version >= 3 {
+		enc.WriteUint32(sendPacket.Expire)
+	}
 	// msgKey
 	enc.WriteString(sendPacket.MsgKey)
 
@@ -162,6 +174,9 @@ func encodeSendSize(frame Frame, version uint8) int {
 	}
 	size += (len(sendPacket.ChannelID) + StringFixLenByteSize)
 	size += ChannelTypeByteSize
+	if version >= 3 {
+		size += ExpireByteSize
+	}
 	size += (len(sendPacket.MsgKey) + StringFixLenByteSize)
 	if sendPacket.Setting.IsSet(SettingTopic) {
 		size += (len(sendPacket.Topic) + StringFixLenByteSize)

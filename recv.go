@@ -19,6 +19,7 @@ type RecvPacket struct {
 	Framer
 	Setting     Setting
 	MsgKey      string     // 用于验证此消息是否合法（仿中间人篡改）
+	Expire      uint32     // 消息过期时间 0 表示永不过期
 	MessageID   int64      // 服务端的消息ID(全局唯一)
 	MessageSeq  uint32     // 消息序列号 （用户唯一，有序递增）
 	ClientMsgNo string     // 客户端唯一标示
@@ -46,7 +47,7 @@ func (r *RecvPacket) VerityString() string {
 	return fmt.Sprintf("%d%d%s%d%s%s%d%s", r.MessageID, r.MessageSeq, r.ClientMsgNo, r.Timestamp, r.FromUID, r.ChannelID, r.ChannelType, string(r.Payload))
 }
 func (r *RecvPacket) String() string {
-	return fmt.Sprintf("recv Header:%s Setting:%d MessageID:%d MessageSeq:%d Timestamp:%d FromUid:%s ChannelID:%s ChannelType:%d Topic:%s Payload:%s", r.Framer, r.Setting, r.MessageID, r.MessageSeq, r.Timestamp, r.FromUID, r.ChannelID, r.ChannelType, r.Topic, string(r.Payload))
+	return fmt.Sprintf("recv Header:%s Setting:%d MessageID:%d MessageSeq:%d Timestamp:%d Expire:%d FromUid:%s ChannelID:%s ChannelType:%d Topic:%s Payload:%s", r.Framer, r.Setting, r.MessageID, r.MessageSeq, r.Timestamp, r.Expire, r.FromUID, r.ChannelID, r.ChannelType, r.Topic, string(r.Payload))
 }
 
 func decodeRecv(frame Frame, data []byte, version uint8) (Frame, error) {
@@ -74,6 +75,13 @@ func decodeRecv(frame Frame, data []byte, version uint8) (Frame, error) {
 	// 频道类型
 	if recvPacket.ChannelType, err = dec.Uint8(); err != nil {
 		return nil, errors.Wrap(err, "解码ChannelType失败！")
+	}
+	if version >= 3 {
+		var expire uint32
+		if expire, err = dec.Uint32(); err != nil {
+			return nil, errors.Wrap(err, "解码Expire失败！")
+		}
+		recvPacket.Expire = expire
 	}
 	// 客户端唯一标示
 	if recvPacket.ClientMsgNo, err = dec.String(); err != nil {
@@ -144,6 +152,9 @@ func encodeRecv(recvPacket *RecvPacket, enc *Encoder, version uint8) error {
 	enc.WriteString(recvPacket.ChannelID)
 	// 频道类型
 	enc.WriteUint8(recvPacket.ChannelType)
+	if version >= 3 {
+		enc.WriteUint32(recvPacket.Expire)
+	}
 	// 客户端唯一标示
 	enc.WriteString(recvPacket.ClientMsgNo)
 	// 流消息
@@ -175,6 +186,9 @@ func encodeRecvSize(packet *RecvPacket, version uint8) int {
 	size += (len(packet.FromUID) + StringFixLenByteSize)
 	size += (len(packet.ChannelID) + StringFixLenByteSize)
 	size += ChannelTypeByteSize
+	if version >= 3 {
+		size += ExpireByteSize
+	}
 	size += (len(packet.ClientMsgNo) + StringFixLenByteSize)
 	if version >= 2 && packet.Setting.IsSet(SettingStream) {
 		size += (len(packet.StreamNo) + StringFixLenByteSize)

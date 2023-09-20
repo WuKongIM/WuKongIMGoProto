@@ -13,11 +13,12 @@ func TestSendEncodeAndDecode(t *testing.T) {
 		Framer: Framer{
 			RedDot: true,
 		},
+		Expire:      100,
 		Setting:     setting,
 		ClientSeq:   2,
 		ChannelID:   "34341",
 		ChannelType: 2,
-		Payload:     []byte("dsdsdsd"),
+		Payload:     []byte("dsdsdsd1"),
 	}
 	packet.RedDot = true
 
@@ -36,6 +37,7 @@ func TestSendEncodeAndDecode(t *testing.T) {
 	assert.Equal(t, packet.ClientSeq, resultSendPacket.ClientSeq)
 	assert.Equal(t, packet.ChannelID, resultSendPacket.ChannelID)
 	assert.Equal(t, packet.ChannelType, resultSendPacket.ChannelType)
+	assert.Equal(t, packet.Expire, resultSendPacket.Expire)
 	assert.Equal(t, packet.RedDot, resultSendPacket.RedDot)
 	assert.Equal(t, packet.Payload, resultSendPacket.Payload)
 	assert.Equal(t, packet.Setting, resultSendPacket.Setting)

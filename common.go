@@ -316,6 +316,7 @@ const (
 	ActionByteSize          = 1
 	StreamSeqByteSize       = 4
 	StreamFlagByteSize      = 1
+	ExpireByteSize          = 4
 )
 
 const (

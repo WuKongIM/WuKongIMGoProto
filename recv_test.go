@@ -12,6 +12,7 @@ func TestRecvEncodeAndDecode(t *testing.T) {
 
 	packet := &RecvPacket{
 		MessageID:   1223,
+		Expire:      10,
 		MessageSeq:  9238934,
 		Timestamp:   int32(time.Now().Unix()),
 		ChannelID:   "3434",
@@ -26,11 +27,11 @@ func TestRecvEncodeAndDecode(t *testing.T) {
 
 	codec := New()
 	// 编码
-	packetBytes, err := codec.EncodeFrame(packet, 1)
+	packetBytes, err := codec.EncodeFrame(packet, 3)
 	assert.NoError(t, err)
 
 	// 解码
-	resultPacket, _, err := codec.DecodeFrame(packetBytes, 1)
+	resultPacket, _, err := codec.DecodeFrame(packetBytes, 3)
 	assert.NoError(t, err)
 	resultRecvPacket, ok := resultPacket.(*RecvPacket)
 	fmt.Println("resultRecvPacket--->", resultRecvPacket)
@@ -43,6 +44,7 @@ func TestRecvEncodeAndDecode(t *testing.T) {
 	assert.Equal(t, packet.ChannelID, resultRecvPacket.ChannelID)
 	assert.Equal(t, packet.ChannelType, resultRecvPacket.ChannelType)
 	assert.Equal(t, packet.Payload, resultRecvPacket.Payload)
+	assert.Equal(t, packet.Expire, resultRecvPacket.Expire)
 
 	assert.Equal(t, packet.Framer.GetNoPersist(), resultRecvPacket.Framer.GetNoPersist())
 	assert.Equal(t, packet.Framer.GetRedDot(), resultRecvPacket.Framer.GetRedDot())
