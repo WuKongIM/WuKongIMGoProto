@@ -18,12 +18,6 @@ type ConnectPacket struct {
 	Token           string     // token
 }
 
-// ToFixHeaderUint8 ToFixHeaderUint8
-func (c ConnectPacket) ToFixHeaderUint8() uint8 {
-	typeAndFlags := encodeBool(c.GetDUP())<<3 | encodeBool(c.GetsyncOnce())<<2 | encodeBool(c.GetRedDot())<<1 | encodeBool(c.GetNoPersist())
-	return byte(int(c.GetFrameType()<<4) | typeAndFlags)
-}
-
 // GetFrameType 包类型
 func (c ConnectPacket) GetFrameType() FrameType {
 	return CONNECT

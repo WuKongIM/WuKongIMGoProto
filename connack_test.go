@@ -8,10 +8,11 @@ import (
 
 func TestConnackEncodeAndDecode(t *testing.T) {
 	packet := &ConnackPacket{
-		TimeDiff:   12345,
-		ReasonCode: ReasonSuccess,
-		ServerKey:  "ServerKey",
-		Salt:       "Salt",
+		TimeDiff:      12345,
+		ReasonCode:    ReasonSuccess,
+		ServerKey:     "ServerKey",
+		Salt:          "Salt",
+		ServerVersion: 100,
 	}
 	codec := New()
 	// 编码
@@ -28,4 +29,5 @@ func TestConnackEncodeAndDecode(t *testing.T) {
 	assert.Equal(t, packet.ReasonCode, resultConnackPacket.ReasonCode)
 	assert.Equal(t, packet.ServerKey, resultConnackPacket.ServerKey)
 	assert.Equal(t, packet.Salt, resultConnackPacket.Salt)
+	assert.Equal(t, packet.ServerVersion, resultConnackPacket.ServerVersion)
 }

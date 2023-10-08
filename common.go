@@ -17,6 +17,7 @@ type Framer struct {
 // ToFixHeaderUint8 ToFixHeaderUint8
 func ToFixHeaderUint8(f Frame) uint8 {
 	typeAndFlags := encodeBool(f.GetDUP())<<3 | encodeBool(f.GetsyncOnce())<<2 | encodeBool(f.GetRedDot())<<1 | encodeBool(f.GetNoPersist())
+
 	return byte(int(f.GetFrameType()<<4) | typeAndFlags)
 }
 
@@ -28,6 +29,7 @@ func FramerFromUint8(v uint8) Framer {
 	p.SyncOnce = (v >> 2 & 0x01) > 0
 	p.DUP = (v >> 3 & 0x01) > 0
 	p.FrameType = FrameType(v >> 4)
+
 	return p
 }
 

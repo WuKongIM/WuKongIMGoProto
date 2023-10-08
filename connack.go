@@ -9,10 +9,11 @@ import (
 // ConnackPacket 连接回执包
 type ConnackPacket struct {
 	Framer
-	ServerKey  string     // 服务端的DH公钥
-	Salt       string     // salt
-	TimeDiff   int64      // 客户端时间与服务器的差值，单位毫秒。
-	ReasonCode ReasonCode // 原因码
+	ServerVersion uint8      // 服务端版本
+	ServerKey     string     // 服务端的DH公钥
+	Salt          string     // salt
+	TimeDiff      int64      // 客户端时间与服务器的差值，单位毫秒。
+	ReasonCode    ReasonCode // 原因码
 }
 
 // GetFrameType 获取包类型
@@ -24,8 +25,11 @@ func (c ConnackPacket) String() string {
 }
 
 func encodeConnack(connack *ConnackPacket, enc *Encoder, version uint8) error {
+	if version > 3 {
+		enc.WriteUint8(connack.ServerVersion)
+	}
 	enc.WriteInt64(connack.TimeDiff)
-	enc.WriteByte(connack.ReasonCode.Byte())
+	_ = enc.WriteByte(connack.ReasonCode.Byte())
 	enc.WriteString(connack.ServerKey)
 	enc.WriteString(connack.Salt)
 	return nil
@@ -33,6 +37,9 @@ func encodeConnack(connack *ConnackPacket, enc *Encoder, version uint8) error {
 
 func encodeConnackSize(packet *ConnackPacket, version uint8) int {
 	size := 0
+	if version > 3 {
+		size += VersionByteSize
+	}
 	size += TimeDiffByteSize
 	size += ReasonCodeByteSize
 	size += (len(packet.ServerKey) + StringFixLenByteSize)
@@ -46,6 +53,12 @@ func decodeConnack(frame Frame, data []byte, version uint8) (Frame, error) {
 	connackPacket.Framer = frame.(Framer)
 
 	var err error
+
+	if version > 3 {
+		if connackPacket.ServerVersion, err = dec.Uint8(); err != nil {
+			return nil, errors.Wrap(err, "解码version失败！")
+		}
+	}
 
 	if connackPacket.TimeDiff, err = dec.Int64(); err != nil {
 		return nil, errors.Wrap(err, "解码TimeDiff失败！")
