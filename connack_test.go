@@ -14,6 +14,7 @@ func TestConnackEncodeAndDecode(t *testing.T) {
 		Salt:          "Salt",
 		ServerVersion: 100,
 	}
+	packet.HasServerVersion = true
 	codec := New()
 	// 编码
 	packetBytes, err := codec.EncodeFrame(packet, 4)

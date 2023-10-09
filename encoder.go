@@ -42,7 +42,7 @@ func (e *Encoder) WriteInt(i int) error {
 
 // WriteUint8 WriteUint8
 func (e *Encoder) WriteUint8(i uint8) {
-	e.WriteInt(int(i))
+	_ = e.WriteInt(int(i))
 }
 
 // WriteInt16 WriteInt16
@@ -95,7 +95,7 @@ func (e *Encoder) WriteUint64(i uint64) {
 
 // WriteUint32 WriteUint32
 func (e *Encoder) WriteUint32(i uint32) {
-	WriteUint32(i, e.w)
+	_ = WriteUint32(i, e.w)
 }
 
 // WriteString WriteString

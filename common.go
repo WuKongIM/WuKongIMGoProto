@@ -4,12 +4,13 @@ import "fmt"
 
 // Framer 包的基础framer
 type Framer struct {
-	FrameType       FrameType
-	RemainingLength uint32 // 控制报文总长度等于固定报头的长度加上剩余长度
-	NoPersist       bool   // 是否不持久化
-	RedDot          bool   // 是否显示红点
-	SyncOnce        bool   // 此消息只被同步或被消费一次
-	DUP             bool   // 是否是重发消息
+	FrameType        FrameType
+	RemainingLength  uint32 // 控制报文总长度等于固定报头的长度加上剩余长度
+	NoPersist        bool   // 是否不持久化
+	RedDot           bool   // 是否显示红点
+	SyncOnce         bool   // 此消息只被同步或被消费一次
+	DUP              bool   // 是否是重发消息
+	HasServerVersion bool   // 是否有服务端版本 connack包用到
 
 	FrameSize int64
 }
@@ -17,7 +18,9 @@ type Framer struct {
 // ToFixHeaderUint8 ToFixHeaderUint8
 func ToFixHeaderUint8(f Frame) uint8 {
 	typeAndFlags := encodeBool(f.GetDUP())<<3 | encodeBool(f.GetsyncOnce())<<2 | encodeBool(f.GetRedDot())<<1 | encodeBool(f.GetNoPersist())
-
+	if f.GetFrameType() == CONNACK {
+		typeAndFlags = encodeBool(f.GetHasServerVersion())
+	}
 	return byte(int(f.GetFrameType()<<4) | typeAndFlags)
 }
 
@@ -29,6 +32,9 @@ func FramerFromUint8(v uint8) Framer {
 	p.SyncOnce = (v >> 2 & 0x01) > 0
 	p.DUP = (v >> 3 & 0x01) > 0
 	p.FrameType = FrameType(v >> 4)
+	if p.FrameType == CONNACK {
+		p.HasServerVersion = (v & 0x01) > 0
+	}
 
 	return p
 }
@@ -65,6 +71,10 @@ func (f Framer) GetsyncOnce() bool {
 // GetDUP 是否是重发消息
 func (f Framer) GetDUP() bool {
 	return f.DUP
+}
+
+func (f Framer) GetHasServerVersion() bool {
+	return f.HasServerVersion
 }
 
 func (f Framer) String() string {
@@ -294,7 +304,8 @@ type Frame interface {
 	GetsyncOnce() bool
 	// 是否是重发的消息
 	GetDUP() bool
-	GetFrameSize() int64 // 总个frame的大小（不参与编码解码）
+	GetFrameSize() int64       // 总个frame的大小（不参与编码解码）
+	GetHasServerVersion() bool // 是否有服务端版本 connack包用到
 }
 
 type Channel struct {

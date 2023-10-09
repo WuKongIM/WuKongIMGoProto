@@ -143,7 +143,7 @@ func decodeRecv(frame Frame, data []byte, version uint8) (Frame, error) {
 
 func encodeRecv(recvPacket *RecvPacket, enc *Encoder, version uint8) error {
 	// setting
-	enc.WriteByte(recvPacket.Setting.Uint8())
+	_ = enc.WriteByte(recvPacket.Setting.Uint8())
 	// MsgKey
 	enc.WriteString(recvPacket.MsgKey)
 	// 发送者

@@ -27,7 +27,7 @@ type WKProto struct {
 }
 
 // LatestVersion 最新版本
-const LatestVersion = 4
+const LatestVersion = 3
 
 // MaxRemaingLength 最大剩余长度 // 1<<28 - 1
 const MaxRemaingLength uint32 = 1024 * 1024
@@ -243,7 +243,7 @@ func (l *WKProto) EncodeFrame(frame Frame, version uint8) ([]byte, error) {
 
 func (l *WKProto) encodeFrame(f Frame, enc *Encoder, remainingLength uint32) {
 
-	enc.WriteByte(ToFixHeaderUint8(f))
+	_ = enc.WriteByte(ToFixHeaderUint8(f))
 
 	encodeVariable2(remainingLength, enc)
 }
@@ -317,7 +317,7 @@ func encodeVariable2(size uint32, enc *Encoder) {
 		if size > 0 {
 			digit |= 0x80
 		}
-		enc.WriteByte(digit)
+		_ = enc.WriteByte(digit)
 	}
 }
 func decodeLength(data []byte) (uint32, uint32, error) {
@@ -343,7 +343,7 @@ func decodeLengthWithConn(r io.Reader) int {
 	var multiplier uint32
 	for multiplier < 27 { //fix: Infinite '(digit & 128) == 1' will cause the dead loop
 		b := make([]byte, 1)
-		io.ReadFull(r, b)
+		_, _ = io.ReadFull(r, b)
 		digit := b[0]
 		rLength |= uint32(digit&127) << multiplier
 		if (digit & 128) == 0 {

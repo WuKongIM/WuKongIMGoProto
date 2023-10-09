@@ -59,7 +59,7 @@ func decodeSub(frame Frame, data []byte, version uint8) (Frame, error) {
 
 func encodeSub(frame Frame, enc *Encoder, version uint8) error {
 	subPacket := frame.(*SubPacket)
-	enc.WriteByte(subPacket.Setting.Uint8())
+	_ = enc.WriteByte(subPacket.Setting.Uint8())
 	// 客户端消息编号
 	enc.WriteString(subPacket.SubNo)
 	// 频道ID

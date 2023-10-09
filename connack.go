@@ -25,7 +25,7 @@ func (c ConnackPacket) String() string {
 }
 
 func encodeConnack(connack *ConnackPacket, enc *Encoder, version uint8) error {
-	if version > 3 {
+	if connack.GetHasServerVersion() {
 		enc.WriteUint8(connack.ServerVersion)
 	}
 	enc.WriteInt64(connack.TimeDiff)
@@ -37,7 +37,7 @@ func encodeConnack(connack *ConnackPacket, enc *Encoder, version uint8) error {
 
 func encodeConnackSize(packet *ConnackPacket, version uint8) int {
 	size := 0
-	if version > 3 {
+	if packet.GetHasServerVersion() {
 		size += VersionByteSize
 	}
 	size += TimeDiffByteSize
@@ -54,7 +54,7 @@ func decodeConnack(frame Frame, data []byte, version uint8) (Frame, error) {
 
 	var err error
 
-	if version > 3 {
+	if frame.GetHasServerVersion() {
 		if connackPacket.ServerVersion, err = dec.Uint8(); err != nil {
 			return nil, errors.Wrap(err, "解码version失败！")
 		}

@@ -133,7 +133,7 @@ func decodeSend(frame Frame, data []byte, version uint8) (Frame, error) {
 func encodeSend(frame Frame, enc *Encoder, version uint8) error {
 	sendPacket := frame.(*SendPacket)
 
-	enc.WriteByte(sendPacket.Setting.Uint8())
+	_ = enc.WriteByte(sendPacket.Setting.Uint8())
 	// 消息序列号(客户端维护)
 	enc.WriteUint32(uint32(sendPacket.ClientSeq))
 	// 客户端唯一标示
