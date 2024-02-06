@@ -165,6 +165,10 @@ func (d *Decoder) Binary() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if size < 0 {
+		return nil, fmt.Errorf("size is less than 0, size: %d", size)
+
+	}
 	if d.offset+int(size) > len(d.p) {
 		return nil, fmt.Errorf("Decoder couldn't read expect bytes %d of %d", d.offset+int(size), len(d.p))
 	}
