@@ -42,6 +42,14 @@ func (r *RecvPacket) GetFrameType() FrameType {
 	return RECV
 }
 
+func (r *RecvPacket) Size() int {
+	return r.SizeWithProtoVersion(LatestVersion)
+}
+
+func (r *RecvPacket) SizeWithProtoVersion(protVersion uint8) int {
+	return encodeRecvSize(r, protVersion)
+}
+
 // VerityString 验证字符串
 func (r *RecvPacket) VerityString() string {
 	return fmt.Sprintf("%d%d%s%d%s%s%d%s", r.MessageID, r.MessageSeq, r.ClientMsgNo, r.Timestamp, r.FromUID, r.ChannelID, r.ChannelType, string(r.Payload))
