@@ -1,22 +1,41 @@
 package wkproto
 
 import (
-	"bytes"
 	"io"
+
+	"github.com/valyala/bytebufferpool"
 )
 
-// var pool = bytebufferpool.Pool{}
+var pool = bytebufferpool.Pool{}
+
+type EncodeOptions struct {
+	Cap int
+}
+
+func NewEncodeOptions() *EncodeOptions {
+	return &EncodeOptions{
+		Cap: 100,
+	}
+}
+
+type EncodeOption func(*EncodeOptions)
+
+func EcodeWithCap(cap int) EncodeOption {
+	return func(o *EncodeOptions) {
+		o.Cap = cap
+	}
+}
 
 // Encoder 编码者
 type Encoder struct {
-	w *bytes.Buffer
+	w *bytebufferpool.ByteBuffer
 }
 
 // NewEncoder NewEncoder
 func NewEncoder() *Encoder {
 
 	return &Encoder{
-		w: bytes.NewBuffer([]byte{}),
+		w: pool.Get(),
 	}
 }
 
@@ -139,7 +158,7 @@ func (e *Encoder) WriteVariable(v int) {
 }
 
 func (e *Encoder) End() {
-	// bytebufferpool.Put(e.w)
+	bytebufferpool.Put(e.w)
 }
 
 // WriteUint32 WriteUint32
