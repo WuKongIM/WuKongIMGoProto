@@ -14,6 +14,7 @@ type ConnackPacket struct {
 	Salt          string     // salt
 	TimeDiff      int64      // 客户端时间与服务器的差值，单位毫秒。
 	ReasonCode    ReasonCode // 原因码
+	NodeId        uint64     // 节点Id
 }
 
 // GetFrameType 获取包类型
@@ -32,6 +33,9 @@ func encodeConnack(connack *ConnackPacket, enc *Encoder, version uint8) error {
 	_ = enc.WriteByte(connack.ReasonCode.Byte())
 	enc.WriteString(connack.ServerKey)
 	enc.WriteString(connack.Salt)
+	if version >= 4 {
+		enc.WriteUint64(connack.NodeId)
+	}
 	return nil
 }
 
@@ -44,6 +48,9 @@ func encodeConnackSize(packet *ConnackPacket, version uint8) int {
 	size += ReasonCodeByteSize
 	size += (len(packet.ServerKey) + StringFixLenByteSize)
 	size += (len(packet.Salt) + StringFixLenByteSize)
+	if version >= 4 {
+		size += NodeIdByteSize
+	}
 	return size
 }
 
@@ -74,6 +81,12 @@ func decodeConnack(frame Frame, data []byte, version uint8) (Frame, error) {
 	}
 	if connackPacket.Salt, err = dec.String(); err != nil {
 		return nil, errors.Wrap(err, "解码Salt失败！")
+	}
+
+	if version >= 4 {
+		if connackPacket.NodeId, err = dec.Uint64(); err != nil {
+			return nil, errors.Wrap(err, "解码NodeId失败！")
+		}
 	}
 
 	return connackPacket, nil

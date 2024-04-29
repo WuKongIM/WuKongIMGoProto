@@ -333,6 +333,7 @@ const (
 	StreamSeqByteSize       = 4
 	StreamFlagByteSize      = 1
 	ExpireByteSize          = 4
+	NodeIdByteSize          = 8
 )
 
 const (
