@@ -190,6 +190,7 @@ const (
 	ReasonClientKeyIsEmpty      // clientKey 是空的
 	ReasonRateLimit             // 速率限制
 	ReasonNotSupportChannelType // 不支持的频道类型
+	ReasonDisband               // 频道已解散
 )
 
 func (r ReasonCode) String() string {
@@ -232,6 +233,8 @@ func (r ReasonCode) String() string {
 		return "ReasonClientKeyIsEmpty"
 	case ReasonRateLimit:
 		return "ReasonRateLimit"
+	case ReasonDisband:
+		return "ReasonDisband"
 	}
 	return fmt.Sprintf("UNKNOWN[%d]", r)
 }
