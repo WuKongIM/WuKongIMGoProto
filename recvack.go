@@ -22,7 +22,7 @@ func (s *RecvackPacket) String() string {
 	return fmt.Sprintf("Framer:%s MessageId:%d MessageSeq:%d", s.Framer.String(), s.MessageID, s.MessageSeq)
 }
 
-func decodeRecvack(frame Frame, data []byte, version uint8) (Frame, error) {
+func decodeRecvack(frame Frame, data []byte, _ uint8) (Frame, error) {
 	dec := NewDecoder(data)
 	recvackPacket := &RecvackPacket{}
 	recvackPacket.Framer = frame.(Framer)
@@ -38,13 +38,13 @@ func decodeRecvack(frame Frame, data []byte, version uint8) (Frame, error) {
 	return recvackPacket, err
 }
 
-func encodeRecvack(recvackPacket *RecvackPacket, enc *Encoder, version uint8) error {
+func encodeRecvack(recvackPacket *RecvackPacket, enc *Encoder, _ uint8) error {
 	enc.WriteInt64(recvackPacket.MessageID)
 	enc.WriteUint32(recvackPacket.MessageSeq)
 	return nil
 }
 
-func encodeRecvackSize(packet *RecvackPacket, version uint8) int {
+func encodeRecvackSize(_ *RecvackPacket, _ uint8) int {
 
 	return MessageIDByteSize + MessageSeqByteSize
 }

@@ -66,7 +66,7 @@ func (e *Encoder) WriteUint8(i uint8) {
 
 // WriteInt16 WriteInt16
 func (e *Encoder) WriteInt16(i int) {
-	e.w.Write([]byte{byte(i >> 8), byte(i & 0xFF)})
+	_, _ = e.w.Write([]byte{byte(i >> 8), byte(i & 0xFF)})
 }
 
 // WriteUint16 WriteUint16
@@ -76,7 +76,7 @@ func (e *Encoder) WriteUint16(i uint16) {
 
 // WriteInt32 WriteInt32
 func (e *Encoder) WriteInt32(i int32) {
-	e.w.Write([]byte{
+	_, _ = e.w.Write([]byte{
 		byte(i >> 24),
 		byte(i >> 16),
 		byte(i >> 8),
@@ -86,7 +86,7 @@ func (e *Encoder) WriteInt32(i int32) {
 
 // WriteInt64 WriteInt64
 func (e *Encoder) WriteInt64(i int64) {
-	e.w.Write([]byte{
+	_, _ = e.w.Write([]byte{
 		byte(i >> 56),
 		byte(i >> 48),
 		byte(i >> 40),
@@ -100,7 +100,7 @@ func (e *Encoder) WriteInt64(i int64) {
 
 // WriteUint64 WriteUint64
 func (e *Encoder) WriteUint64(i uint64) {
-	e.w.Write([]byte{
+	_, _ = e.w.Write([]byte{
 		byte(i >> 56),
 		byte(i >> 48),
 		byte(i >> 40),
@@ -133,14 +133,14 @@ func (e *Encoder) WriteBinary(b []byte) {
 		e.WriteInt16(0)
 	} else {
 		e.WriteInt16(len(b))
-		e.w.Write(b)
+		_, _ = e.w.Write(b)
 	}
 
 }
 
 // WriteBytes WriteBytes
 func (e *Encoder) WriteBytes(b []byte) {
-	e.w.Write(b)
+	_, _ = e.w.Write(b)
 }
 
 // WriteVariable WriteVariable
@@ -154,7 +154,7 @@ func (e *Encoder) WriteVariable(v int) {
 		}
 		b = append(b, byte(digit))
 	}
-	e.w.Write(b)
+	_, _ = e.w.Write(b)
 }
 
 func (e *Encoder) End() {

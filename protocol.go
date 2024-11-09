@@ -248,22 +248,22 @@ func (l *WKProto) encodeFrame(f Frame, enc *Encoder, remainingLength uint32) {
 	encodeVariable2(remainingLength, enc)
 }
 
-func (l *WKProto) encodeFramer(f Frame, remainingLength uint32) ([]byte, error) {
+// func (l *WKProto) encodeFramer(f Frame, remainingLength uint32) ([]byte, error) {
 
-	if f.GetFrameType() == PING || f.GetFrameType() == PONG {
-		return []byte{byte(int(f.GetFrameType()<<4) | 0)}, nil
-	}
+// 	if f.GetFrameType() == PING || f.GetFrameType() == PONG {
+// 		return []byte{byte(int(f.GetFrameType() << 4))}, nil
+// 	}
 
-	header := []byte{ToFixHeaderUint8(f)}
+// 	header := []byte{ToFixHeaderUint8(f)}
 
-	if f.GetFrameType() == SEND {
-		return []byte{1}, nil
-	}
+// 	if f.GetFrameType() == SEND {
+// 		return []byte{1}, nil
+// 	}
 
-	varHeader := encodeVariable(remainingLength)
+// 	varHeader := encodeVariable(remainingLength)
 
-	return append(header, varHeader...), nil
-}
+//		return append(header, varHeader...), nil
+//	}
 func (l *WKProto) decodeFramer(data []byte) (Framer, int, error) {
 	typeAndFlags := data[0]
 	p := FramerFromUint8(typeAndFlags)

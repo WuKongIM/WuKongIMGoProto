@@ -57,7 +57,7 @@ func decodeSub(frame Frame, data []byte, version uint8) (Frame, error) {
 	return subPacket, nil
 }
 
-func encodeSub(frame Frame, enc *Encoder, version uint8) error {
+func encodeSub(frame Frame, enc *Encoder, _ uint8) error {
 	subPacket := frame.(*SubPacket)
 	_ = enc.WriteByte(subPacket.Setting.Uint8())
 	// 客户端消息编号
@@ -73,7 +73,7 @@ func encodeSub(frame Frame, enc *Encoder, version uint8) error {
 	return nil
 }
 
-func encodeSubSize(frame Frame, version uint8) int {
+func encodeSubSize(frame Frame, _ uint8) int {
 	subPacket := frame.(*SubPacket)
 	var size = 0
 	size += SettingByteSize

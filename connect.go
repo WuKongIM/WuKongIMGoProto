@@ -60,7 +60,7 @@ func decodeConnect(frame Frame, data []byte, version uint8) (Frame, error) {
 	return connectPacket, err
 }
 
-func encodeConnect(connectPacket *ConnectPacket, enc *Encoder, version uint8) error {
+func encodeConnect(connectPacket *ConnectPacket, enc *Encoder, _ uint8) error {
 	// 协议版本
 	enc.WriteUint8(connectPacket.Version)
 	// 设备标示
@@ -79,7 +79,7 @@ func encodeConnect(connectPacket *ConnectPacket, enc *Encoder, version uint8) er
 	return nil
 }
 
-func encodeConnectSize(connectPacket *ConnectPacket, version uint8) int {
+func encodeConnectSize(connectPacket *ConnectPacket, _ uint8) int {
 
 	var size = 0
 

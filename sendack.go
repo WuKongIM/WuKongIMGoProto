@@ -56,7 +56,7 @@ func decodeSendack(frame Frame, data []byte, version uint8) (Frame, error) {
 	return sendackPacket, err
 }
 
-func encodeSendack(sendackPacket *SendackPacket, enc *Encoder, version uint8) error {
+func encodeSendack(sendackPacket *SendackPacket, enc *Encoder, _ uint8) error {
 	// 消息唯一ID
 	enc.WriteInt64(sendackPacket.MessageID)
 	// clientSeq
@@ -68,7 +68,7 @@ func encodeSendack(sendackPacket *SendackPacket, enc *Encoder, version uint8) er
 	return nil
 }
 
-func encodeSendackSize(packet *SendackPacket, version uint8) int {
+func encodeSendackSize(_ *SendackPacket, _ uint8) int {
 
 	return MessageIDByteSize + ClientSeqByteSize + MessageSeqByteSize + ReasonCodeByteSize
 }

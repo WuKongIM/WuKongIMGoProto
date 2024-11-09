@@ -40,7 +40,7 @@ func decodeDisConnect(frame Frame, data []byte, version uint8) (Frame, error) {
 	return disConnectPacket, err
 }
 
-func encodeDisConnect(disConnectPacket *DisconnectPacket, enc *Encoder, version uint8) error {
+func encodeDisConnect(disConnectPacket *DisconnectPacket, enc *Encoder, _ uint8) error {
 	// 原因代码
 	enc.WriteUint8(disConnectPacket.ReasonCode.Byte())
 	// 原因
@@ -48,7 +48,7 @@ func encodeDisConnect(disConnectPacket *DisconnectPacket, enc *Encoder, version 
 	return nil
 }
 
-func encodeDisConnectSize(packet *DisconnectPacket, version uint8) int {
+func encodeDisConnectSize(packet *DisconnectPacket, _ uint8) int {
 
 	return ReasonCodeByteSize + len(packet.Reason) + StringFixLenByteSize
 }

@@ -63,7 +63,7 @@ func decodeSuback(frame Frame, data []byte, version uint8) (Frame, error) {
 	return subackPacket, nil
 }
 
-func encodeSuback(frame Frame, enc *Encoder, version uint8) error {
+func encodeSuback(frame Frame, enc *Encoder, _ uint8) error {
 	subackPacket := frame.(*SubackPacket)
 	// 客户端消息编号
 	enc.WriteString(subackPacket.SubNo)
@@ -78,7 +78,7 @@ func encodeSuback(frame Frame, enc *Encoder, version uint8) error {
 	return nil
 }
 
-func encodeSubackSize(frame Frame, version uint8) int {
+func encodeSubackSize(frame Frame, _ uint8) int {
 	subPacket := frame.(*SubackPacket)
 	var size = 0
 	size += (len(subPacket.SubNo) + StringFixLenByteSize)

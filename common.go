@@ -1,6 +1,8 @@
 package wkproto
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Framer 包的基础framer
 type Framer struct {
@@ -346,4 +348,6 @@ const (
 	ChannelTypeCommunityTopic  uint8 = 5 // 社区话题频道
 	ChannelTypeInfo            uint8 = 6 // 资讯频道（有临时订阅者的概念，查看资讯的时候加入临时订阅，退出资讯的时候退出临时订阅）
 	ChannelTypeData            uint8 = 7 // 数据频道
+	ChannelTypeTemp            uint8 = 8 // 临时频道
+
 )
