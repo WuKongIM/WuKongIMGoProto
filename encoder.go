@@ -1,6 +1,7 @@
 package wkproto
 
 import (
+	"bytes"
 	"io"
 
 	"github.com/valyala/bytebufferpool"
@@ -26,16 +27,29 @@ func EcodeWithCap(cap int) EncodeOption {
 	}
 }
 
+type Writer interface {
+	io.Writer
+	io.ByteWriter
+	io.WriterTo
+	Bytes() []byte
+	Len() int
+}
+
 // Encoder 编码者
 type Encoder struct {
-	w *bytebufferpool.ByteBuffer
+	w Writer
 }
 
 // NewEncoder NewEncoder
 func NewEncoder() *Encoder {
 
+	return NewEncoderBuffer(bytes.NewBuffer([]byte{}))
+}
+
+func NewEncoderBuffer(w Writer) *Encoder {
+
 	return &Encoder{
-		w: pool.Get(),
+		w: w,
 	}
 }
 
@@ -158,7 +172,7 @@ func (e *Encoder) WriteVariable(v int) {
 }
 
 func (e *Encoder) End() {
-	bytebufferpool.Put(e.w)
+	// bytebufferpool.Put(e.w)
 }
 
 // WriteUint32 WriteUint32
