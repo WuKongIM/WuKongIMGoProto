@@ -2,8 +2,10 @@ package wkproto
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/valyala/bytebufferpool"
 )
 
 type StreamFlag uint8
@@ -37,6 +39,33 @@ type RecvPacket struct {
 	ClientSeq uint64 // 客户端提供的序列号，在客户端内唯一
 }
 
+func (r *RecvPacket) Reset() {
+	r.Framer.FrameType = UNKNOWN
+	r.Framer.RemainingLength = 0
+	r.Framer.NoPersist = false
+	r.Framer.RedDot = false
+	r.Framer.SyncOnce = false
+	r.Framer.DUP = false
+	r.Framer.HasServerVersion = false
+	r.Framer.FrameSize = 0
+	r.Setting = 0
+	r.MsgKey = ""
+	r.Expire = 0
+	r.MessageID = 0
+	r.MessageSeq = 0
+	r.ClientMsgNo = ""
+	r.StreamNo = ""
+	r.StreamSeq = 0
+	r.StreamFlag = 0
+	r.Timestamp = 0
+	r.ChannelID = ""
+	r.ChannelType = 0
+	r.Topic = ""
+	r.FromUID = ""
+	r.Payload = nil
+	r.ClientSeq = 0
+}
+
 // GetPacketType 获得包类型
 func (r *RecvPacket) GetFrameType() FrameType {
 	return RECV
@@ -50,10 +79,29 @@ func (r *RecvPacket) SizeWithProtoVersion(protVersion uint8) int {
 	return encodeRecvSize(r, protVersion)
 }
 
-// VerityString 验证字符串
 func (r *RecvPacket) VerityString() string {
-	return fmt.Sprintf("%d%d%s%d%s%s%d%s", r.MessageID, r.MessageSeq, r.ClientMsgNo, r.Timestamp, r.FromUID, r.ChannelID, r.ChannelType, string(r.Payload))
+
+	// 从池中获取一个字节缓冲区
+	buf := bytebufferpool.Get()
+	defer bytebufferpool.Put(buf) // 使用完成后归还到池中
+	buf.Reset()
+	r.VerityBytes(buf)
+	return string(buf.Bytes())
 }
+
+func (r *RecvPacket) VerityBytes(buf *bytebufferpool.ByteBuffer) {
+
+	buf.B = strconv.AppendInt(buf.B, r.MessageID, 10)
+	buf.B = strconv.AppendUint(buf.B, uint64(r.MessageSeq), 10)
+	buf.B = append(buf.B, r.ClientMsgNo...)
+	buf.B = strconv.AppendInt(buf.B, int64(r.Timestamp), 10)
+	buf.B = append(buf.B, r.FromUID...)
+	buf.B = append(buf.B, r.ChannelID...)
+	buf.B = strconv.AppendInt(buf.B, int64(r.ChannelType), 10)
+	buf.B = append(buf.B, r.Payload...)
+
+}
+
 func (r *RecvPacket) String() string {
 	return fmt.Sprintf("recv Header:%s Setting:%d MessageID:%d MessageSeq:%d Timestamp:%d Expire:%d FromUid:%s ChannelID:%s ChannelType:%d Topic:%s Payload:%s", r.Framer, r.Setting, r.MessageID, r.MessageSeq, r.Timestamp, r.Expire, r.FromUID, r.ChannelID, r.ChannelType, r.Topic, string(r.Payload))
 }
