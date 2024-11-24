@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"math"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -35,6 +36,9 @@ const LatestVersion = 4
 
 // MaxRemaingLength 最大剩余长度 // 1<<28 - 1
 const MaxRemaingLength uint32 = 1024 * 1024
+
+// PayloadMaxSize 最大负载大小
+const PayloadMaxSize = math.MaxInt16
 
 // New 创建wukong协议对象
 func New() *WKProto {
@@ -180,6 +184,9 @@ func (l *WKProto) encodeFrameWithWriter(w Writer, frame Frame, version uint8) er
 		err = encodeConnack(packet, enc, version)
 	case SEND:
 		packet := frame.(*SendPacket)
+		if packet.Payload != nil && len(packet.Payload) > PayloadMaxSize {
+			return errors.New(fmt.Sprintf("消息负载超出最大限制[%d]！", PayloadMaxSize))
+		}
 		l.encodeFrame(packet, enc, uint32(encodeSendSize(packet, version)))
 		err = encodeSend(packet, enc, version)
 	case SENDACK:

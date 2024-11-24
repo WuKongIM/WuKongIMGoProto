@@ -2,7 +2,9 @@ package wkproto
 
 import (
 	"bytes"
+	"fmt"
 	"io"
+	"math"
 
 	"github.com/valyala/bytebufferpool"
 )
@@ -146,7 +148,11 @@ func (e *Encoder) WriteBinary(b []byte) {
 	if len(b) == 0 {
 		e.WriteInt16(0)
 	} else {
-		e.WriteInt16(len(b))
+		bl := len(b)
+		if bl > math.MaxInt16 {
+			panic(fmt.Errorf("WriteBinary: len(b) > math.MaxInt16, len(b) = %d", bl))
+		}
+		e.WriteInt16(bl)
 		_, _ = e.w.Write(b)
 	}
 
