@@ -1,6 +1,7 @@
 package wkproto
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"sync"
@@ -19,6 +20,9 @@ type Protocol interface {
 	DecodeFrame(data []byte, version uint8) (Frame, int, error)
 	// EncodeFrame 编码消息
 	EncodeFrame(packet Frame, version uint8) ([]byte, error)
+
+	// WriteFrame 编码报文，并写入writer
+	WriteFrame(w Writer, packet Frame, version uint8) error
 }
 
 // WKroto 悟空IM协议对象
@@ -144,13 +148,25 @@ func (l *WKProto) DecodeFrame(data []byte, version uint8) (Frame, int, error) {
 
 // EncodePacket 编码包
 func (l *WKProto) EncodeFrame(frame Frame, version uint8) ([]byte, error) {
+	buffer := bytes.NewBuffer([]byte{})
+	err := l.encodeFrameWithWriter(buffer, frame, version)
+	if err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
+}
+
+// encodeFrameWithWriter 编码包
+func (l *WKProto) encodeFrameWithWriter(w Writer, frame Frame, version uint8) error {
 	frameType := frame.GetFrameType()
 
-	if frameType == PING || frameType == PONG {
-		return []byte{byte(int(frameType) << 4)}, nil
-	}
-	enc := NewEncoder()
+	enc := NewEncoderBuffer(w)
 	defer enc.End()
+
+	if frameType == PING || frameType == PONG {
+		_ = enc.WriteByte(byte(int(frameType) << 4))
+		return nil
+	}
 
 	var err error
 	switch frameType {
@@ -192,53 +208,14 @@ func (l *WKProto) EncodeFrame(frame Frame, version uint8) ([]byte, error) {
 		err = encodeSuback(packet, enc, version)
 	}
 	if err != nil {
-		return nil, err
+		return err
 	}
+	return nil
+}
 
-	// var bodyBytes []byte
+func (l *WKProto) WriteFrame(w Writer, packet Frame, version uint8) error {
 
-	// enc := NewEncoder()
-	// defer enc.End()
-
-	// if packetType != PING && packetType != PONG {
-	// 	packetEncodeFunc := packetEncodeMap[packetType]
-	// 	if packetEncodeFunc == nil {
-	// 		return nil, errors.New(fmt.Sprintf("不支持对[%s]包的编码！", packetType))
-	// 	}
-
-	// 	if packetType == SEND {
-	// 		// FixedHeader
-	// 		l.encodeFrame(frame, enc, uint32(encodeSendSize(frame, version)))
-	// 		// _, err := l.encodeFramer(frame, uint32(encodeSendSize(frame, version)))
-	// 		// if err != nil {
-	// 		// 	return nil, err
-	// 		// }
-	// 		encodeSend2(frame, enc, version)
-
-	// 		// enc.WriteBytes(headerBytes)
-	// 	} else {
-	// 		bodyBytes, err := packetEncodeFunc(frame, version)
-	// 		if err != nil {
-	// 			return nil, errors.Wrap(err, fmt.Sprintf("编码包[%s]失败！", frame.GetPacketType()))
-	// 		}
-	// 		// FixedHeader
-	// 		headerBytes, err := l.encodeFramer(frame, uint32(len(bodyBytes)))
-	// 		if err != nil {
-	// 			return nil, err
-	// 		}
-	// 		enc.WriteBytes(headerBytes)
-	// 		enc.WriteBytes(bodyBytes)
-	// 	}
-
-	// } else {
-	// 	// FixedHeader
-	// 	headerBytes, err := l.encodeFramer(frame, uint32(len(bodyBytes)))
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// 	enc.WriteBytes(headerBytes)
-	// }
-	return enc.Bytes(), nil
+	return l.encodeFrameWithWriter(w, packet, version)
 }
 
 func (l *WKProto) encodeFrame(f Frame, enc *Encoder, remainingLength uint32) {
