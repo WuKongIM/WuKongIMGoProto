@@ -248,9 +248,9 @@ func encodeRecvSize(packet *RecvPacket, version uint8) int {
 	}
 	size += (len(packet.ClientMsgNo) + StringFixLenByteSize)
 	if version >= 2 && packet.Setting.IsSet(SettingStream) {
-		size += (len(packet.StreamNo) + StringFixLenByteSize)
-		size += StreamSeqByteSize
 		size += StreamFlagByteSize
+		size += (len(packet.StreamNo) + StringFixLenByteSize)
+		size += StreamIdByteSize
 	}
 	size += MessageIDByteSize
 	size += MessageSeqByteSize

@@ -332,7 +332,7 @@ const (
 	MessageSeqByteSize      = 4
 	TimestampByteSize       = 4
 	ActionByteSize          = 1
-	StreamSeqByteSize       = 4
+	StreamIdByteSize        = 8
 	StreamFlagByteSize      = 1
 	ExpireByteSize          = 4
 	NodeIdByteSize          = 8
