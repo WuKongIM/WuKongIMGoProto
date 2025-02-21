@@ -8,7 +8,7 @@ const (
 	SettingSignal         Setting = 1 << 5 // 是否开启signal加密
 	SettingNoEncrypt      Setting = 1 << 4 // 是否不加密
 	SettingTopic          Setting = 1 << 3 // 是否有topic
-	SettingStream         Setting = 1 << 2 // 是否开启流
+	SettingStream         Setting = 1 << 1 // 是否开启流
 
 )
 
