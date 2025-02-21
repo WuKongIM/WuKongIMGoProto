@@ -19,4 +19,4 @@ import  (
 
 ## 3. 协议格式
 
-[协议文档](https://githubim.com/guide/proto.html)
+[协议文档](https://githubim.com/server/advance/proto.html)
