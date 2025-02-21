@@ -20,20 +20,19 @@ const (
 type RecvPacket struct {
 	Framer
 	Setting     Setting
-	MsgKey      string     // 用于验证此消息是否合法（仿中间人篡改）
-	Expire      uint32     // 消息过期时间 0 表示永不过期
-	MessageID   int64      // 服务端的消息ID(全局唯一)
-	MessageSeq  uint32     // 消息序列号 （用户唯一，有序递增）
-	ClientMsgNo string     // 客户端唯一标示
-	StreamNo    string     // 流式编号
-	StreamSeq   uint32     // 流式序列号
-	StreamFlag  StreamFlag // 流式标记
-	Timestamp   int32      // 服务器消息时间戳(10位，到秒)
-	ChannelID   string     // 频道ID
-	ChannelType uint8      // 频道类型
-	Topic       string     // 话题ID
-	FromUID     string     // 发送者UID
-	Payload     []byte     // 消息内容
+	MsgKey      string // 用于验证此消息是否合法（仿中间人篡改）
+	Expire      uint32 // 消息过期时间 0 表示永不过期
+	MessageID   int64  // 服务端的消息ID(全局唯一)
+	MessageSeq  uint32 // 消息序列号 （用户唯一，有序递增）
+	ClientMsgNo string // 客户端唯一标示
+	StreamNo    string // 流式编号
+	StreamId    uint64 // 流式序列号
+	Timestamp   int32  // 服务器消息时间戳(10位，到秒)
+	ChannelID   string // 频道ID
+	ChannelType uint8  // 频道类型
+	Topic       string // 话题ID
+	FromUID     string // 发送者UID
+	Payload     []byte // 消息内容
 
 	// ---------- 以下不参与编码 ------------
 	ClientSeq uint64 // 客户端提供的序列号，在客户端内唯一
@@ -55,8 +54,7 @@ func (r *RecvPacket) Reset() {
 	r.MessageSeq = 0
 	r.ClientMsgNo = ""
 	r.StreamNo = ""
-	r.StreamSeq = 0
-	r.StreamFlag = 0
+	r.StreamId = 0
 	r.Timestamp = 0
 	r.ChannelID = ""
 	r.ChannelType = 0
@@ -148,14 +146,9 @@ func decodeRecv(frame Frame, data []byte, version uint8) (Frame, error) {
 		if recvPacket.StreamNo, err = dec.String(); err != nil {
 			return nil, errors.Wrap(err, "解码StreamNo失败！")
 		}
-		if recvPacket.StreamSeq, err = dec.Uint32(); err != nil {
-			return nil, errors.Wrap(err, "解码StreamSeq失败！")
+		if recvPacket.StreamId, err = dec.Uint64(); err != nil {
+			return nil, errors.Wrap(err, "解码StreamId失败！")
 		}
-		var streamFlag uint8
-		if streamFlag, err = dec.Uint8(); err != nil {
-			return nil, errors.Wrap(err, "解码StreamFlag失败！")
-		}
-		recvPacket.StreamFlag = StreamFlag(streamFlag)
 	}
 	// 消息全局唯一ID
 	if recvPacket.MessageID, err = dec.Int64(); err != nil {
@@ -216,8 +209,7 @@ func encodeRecv(recvPacket *RecvPacket, enc *Encoder, version uint8) error {
 	// 流消息
 	if version >= 2 && recvPacket.Setting.IsSet(SettingStream) {
 		enc.WriteString(recvPacket.StreamNo)
-		enc.WriteUint32(recvPacket.StreamSeq)
-		enc.WriteUint8(uint8(recvPacket.StreamFlag))
+		enc.WriteUint64(recvPacket.StreamId)
 	}
 	// 消息唯一ID
 	enc.WriteInt64(recvPacket.MessageID)
