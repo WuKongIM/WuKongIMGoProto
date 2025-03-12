@@ -349,5 +349,6 @@ const (
 	ChannelTypeInfo            uint8 = 6 // 资讯频道（有临时订阅者的概念，查看资讯的时候加入临时订阅，退出资讯的时候退出临时订阅）
 	ChannelTypeData            uint8 = 7 // 数据频道
 	ChannelTypeTemp            uint8 = 8 // 临时频道
+	ChannelTypeLive            uint8 = 9 // 直播频道(直播频道不会保存最近会话数据)
 
 )
