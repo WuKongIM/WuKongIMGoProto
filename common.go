@@ -342,13 +342,14 @@ const (
 	// ChannelTypePerson 个人频道
 	ChannelTypePerson uint8 = 1
 	// ChannelTypeGroup 群频道
-	ChannelTypeGroup           uint8 = 2 // 群组频道
-	ChannelTypeCustomerService uint8 = 3 // 客服频道
-	ChannelTypeCommunity       uint8 = 4 // 社区频道
-	ChannelTypeCommunityTopic  uint8 = 5 // 社区话题频道
-	ChannelTypeInfo            uint8 = 6 // 资讯频道（有临时订阅者的概念，查看资讯的时候加入临时订阅，退出资讯的时候退出临时订阅）
-	ChannelTypeData            uint8 = 7 // 数据频道
-	ChannelTypeTemp            uint8 = 8 // 临时频道
-	ChannelTypeLive            uint8 = 9 // 直播频道(直播频道不会保存最近会话数据)
+	ChannelTypeGroup           uint8 = 2  // 群组频道
+	ChannelTypeCustomerService uint8 = 3  // 客服频道
+	ChannelTypeCommunity       uint8 = 4  // 社区频道
+	ChannelTypeCommunityTopic  uint8 = 5  // 社区话题频道
+	ChannelTypeInfo            uint8 = 6  // 资讯频道（有临时订阅者的概念，查看资讯的时候加入临时订阅，退出资讯的时候退出临时订阅）
+	ChannelTypeData            uint8 = 7  // 数据频道
+	ChannelTypeTemp            uint8 = 8  // 临时频道
+	ChannelTypeLive            uint8 = 9  // 直播频道(直播频道不会保存最近会话数据)
+	ChannelTypeVisitors        uint8 = 10 // 访客频道 (频道id即为访客id，此频道只支持一个访客订阅者，多个客服订阅者，ChannelTypeCustomerService频道已过时，使用ChannelTypeVisitors代替)
 
 )
