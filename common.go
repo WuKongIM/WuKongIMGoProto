@@ -351,5 +351,7 @@ const (
 	ChannelTypeTemp            uint8 = 8  // 临时频道
 	ChannelTypeLive            uint8 = 9  // 直播频道(直播频道不会保存最近会话数据)
 	ChannelTypeVisitors        uint8 = 10 // 访客频道 (频道id即为访客id，此频道只支持一个访客订阅者，多个客服订阅者，ChannelTypeCustomerService频道已过时，使用ChannelTypeVisitors代替)
+	ChannelTypeAgent           uint8 = 11 // 单聊Agent频道（AI Agent频道，频道ID内部结构为UID@AgentID的结构，类似单聊频道，此频道会针对于AI Agent场景做优化）
+	ChannelTypeAgentGroup      uint8 = 12 // 群聊Agent频道（AI Agent群聊频道，类似群聊频道，此频道会针对于多Agent协同场景做优化）
 
 )
