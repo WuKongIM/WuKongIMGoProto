@@ -193,6 +193,7 @@ const (
 	ReasonRateLimit             // 速率限制
 	ReasonNotSupportChannelType // 不支持的频道类型
 	ReasonDisband               // 频道已解散
+	ReasonSendBan               // 发送被封禁
 )
 
 func (r ReasonCode) String() string {
@@ -237,6 +238,18 @@ func (r ReasonCode) String() string {
 		return "ReasonRateLimit"
 	case ReasonDisband:
 		return "ReasonDisband"
+	case ReasonNotSupportHeader:
+		return "ReasonNotSupportHeader"
+	case ReasonNodeMatchError:
+		return "ReasonNodeMatchError"
+	case ReasonNodeNotMatch:
+		return "ReasonNodeNotMatch"
+	case ReasonBan:
+		return "ReasonBan"
+	case ReasonNotSupportChannelType:
+		return "ReasonNotSupportChannelType"
+	case ReasonSendBan:
+		return "ReasonSendBan"
 	}
 	return fmt.Sprintf("UNKNOWN[%d]", r)
 }
