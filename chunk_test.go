@@ -11,6 +11,7 @@ func TestChunkEncodeAndDecode(t *testing.T) {
 		MessageID: 1,
 		ChunkID:   1,
 		Payload:   []byte("hello world"),
+		EndReason: 1,
 	}
 
 	codec := New()

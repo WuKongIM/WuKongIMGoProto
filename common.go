@@ -13,12 +13,16 @@ type Framer struct {
 	SyncOnce         bool   // 此消息只被同步或被消费一次
 	DUP              bool   // 是否是重发消息
 	HasServerVersion bool   // 是否有服务端版本 connack包用到
-
-	FrameSize int64
+	End              bool   // 消息块：是否是最后一包
+	FrameSize        int64
 }
 
 // ToFixHeaderUint8 ToFixHeaderUint8
 func ToFixHeaderUint8(f Frame) uint8 {
+
+	if f.GetFrameType() == Chunk {
+		return byte(int(f.GetFrameType()<<4) | encodeBool(f.GetEnd()))
+	}
 	typeAndFlags := encodeBool(f.GetDUP())<<3 | encodeBool(f.GetsyncOnce())<<2 | encodeBool(f.GetRedDot())<<1 | encodeBool(f.GetNoPersist())
 	if f.GetFrameType() == CONNACK {
 		typeAndFlags = encodeBool(f.GetHasServerVersion())
@@ -34,8 +38,12 @@ func FramerFromUint8(v uint8) Framer {
 	p.SyncOnce = (v >> 2 & 0x01) > 0
 	p.DUP = (v >> 3 & 0x01) > 0
 	p.FrameType = FrameType(v >> 4)
-	if p.FrameType == CONNACK {
+
+	switch p.FrameType {
+	case CONNACK:
 		p.HasServerVersion = (v & 0x01) > 0
+	case Chunk:
+		p.End = (v & 0x01) > 0
 	}
 
 	return p
@@ -77,6 +85,10 @@ func (f Framer) GetDUP() bool {
 
 func (f Framer) GetHasServerVersion() bool {
 	return f.HasServerVersion
+}
+
+func (f Framer) GetEnd() bool {
+	return f.End
 }
 
 func (f Framer) String() string {
@@ -327,6 +339,8 @@ type Frame interface {
 	GetDUP() bool
 	GetFrameSize() int64       // 总个frame的大小（不参与编码解码）
 	GetHasServerVersion() bool // 是否有服务端版本 connack包用到
+
+	GetEnd() bool
 }
 
 type Channel struct {
@@ -353,6 +367,7 @@ const (
 	ExpireByteSize          = 4
 	NodeIdByteSize          = 8
 	ChunkIDByteSize         = 8
+	EndReasonByteSize       = 1
 )
 
 const (
