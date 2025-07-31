@@ -61,6 +61,7 @@ var packetDecodeMap = map[FrameType]PacketDecodeFunc{
 	DISCONNECT: decodeDisConnect,
 	SUB:        decodeSub,
 	SUBACK:     decodeSuback,
+	Chunk:      decodeChunk,
 }
 
 // var packetEncodeMap = map[PacketType]PacketEncodeFunc{
@@ -184,7 +185,7 @@ func (l *WKProto) encodeFrameWithWriter(w Writer, frame Frame, version uint8) er
 		err = encodeConnack(packet, enc, version)
 	case SEND:
 		packet := frame.(*SendPacket)
-		if packet.Payload != nil && len(packet.Payload) > PayloadMaxSize {
+		if len(packet.Payload) > PayloadMaxSize {
 			return errors.New(fmt.Sprintf("消息负载超出最大限制[%d]！", PayloadMaxSize))
 		}
 		l.encodeFrame(packet, enc, uint32(encodeSendSize(packet, version)))
@@ -213,6 +214,10 @@ func (l *WKProto) encodeFrameWithWriter(w Writer, frame Frame, version uint8) er
 		packet := frame.(*SubackPacket)
 		l.encodeFrame(packet, enc, uint32(encodeSubackSize(packet, version)))
 		err = encodeSuback(packet, enc, version)
+	case Chunk:
+		packet := frame.(*ChunkPacket)
+		l.encodeFrame(packet, enc, uint32(encodeChunkSize(packet, version)))
+		err = encodeChunk(packet, enc, version)
 	}
 	if err != nil {
 		return err

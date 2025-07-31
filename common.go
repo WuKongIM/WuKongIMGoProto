@@ -115,6 +115,7 @@ const (
 	DISCONNECT                  // 请求断开连接
 	SUB                         // 订阅
 	SUBACK                      // 订阅确认
+	Chunk                       // 分片
 )
 
 func (p FrameType) String() string {
@@ -141,6 +142,8 @@ func (p FrameType) String() string {
 		return "SUB"
 	case SUBACK:
 		return "SUBACK"
+	case Chunk:
+		return "Chunk"
 	}
 	return fmt.Sprintf("UNKNOWN[%d]", p)
 }
@@ -349,6 +352,7 @@ const (
 	StreamFlagByteSize      = 1
 	ExpireByteSize          = 4
 	NodeIdByteSize          = 8
+	ChunkIDByteSize         = 8
 )
 
 const (
