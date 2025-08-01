@@ -91,10 +91,12 @@ func decodeSend(frame Frame, data []byte, version uint8) (Frame, error) {
 	}
 
 	// 是否开启了stream
-	if version >= 2 && sendPacket.Setting.IsSet(SettingStream) {
-		// 流式编号
-		if sendPacket.StreamNo, err = dec.String(); err != nil {
-			return nil, errors.Wrap(err, "解码StreamNo失败！")
+	if version < 5 { // 5版本后不再支持send里不再需要streamNo
+		if version >= 2 && sendPacket.Setting.IsSet(SettingStream) {
+			// 流式编号
+			if sendPacket.StreamNo, err = dec.String(); err != nil {
+				return nil, errors.Wrap(err, "解码StreamNo失败！")
+			}
 		}
 	}
 
@@ -139,10 +141,13 @@ func encodeSend(frame Frame, enc *Encoder, version uint8) error {
 	// 客户端唯一标示
 	enc.WriteString(sendPacket.ClientMsgNo)
 	// 是否开启了stream
-	if version >= 2 && sendPacket.Setting.IsSet(SettingStream) {
-		// 流式编号
-		enc.WriteString(sendPacket.StreamNo)
+	if version < 5 { // 5版本后不再支持send里不再需要streamNo
+		if version >= 2 && sendPacket.Setting.IsSet(SettingStream) {
+			// 流式编号
+			enc.WriteString(sendPacket.StreamNo)
+		}
 	}
+
 	// 频道ID
 	enc.WriteString(sendPacket.ChannelID)
 	// 频道类型

@@ -32,7 +32,7 @@ type WKProto struct {
 }
 
 // LatestVersion 最新版本
-const LatestVersion = 4
+const LatestVersion = 5
 
 // MaxRemaingLength 最大剩余长度 // 1<<28 - 1
 const MaxRemaingLength uint32 = 1024 * 1024

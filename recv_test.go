@@ -1,7 +1,6 @@
 package wkproto
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -34,7 +33,6 @@ func TestRecvEncodeAndDecode(t *testing.T) {
 	resultPacket, _, err := codec.DecodeFrame(packetBytes, 3)
 	assert.NoError(t, err)
 	resultRecvPacket, ok := resultPacket.(*RecvPacket)
-	fmt.Println("resultRecvPacket--->", resultRecvPacket)
 	assert.Equal(t, true, ok)
 
 	// 比较
