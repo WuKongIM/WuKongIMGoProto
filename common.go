@@ -20,9 +20,6 @@ type Framer struct {
 // ToFixHeaderUint8 ToFixHeaderUint8
 func ToFixHeaderUint8(f Frame) uint8 {
 
-	if f.GetFrameType() == Chunk {
-		return byte(int(f.GetFrameType()<<4) | encodeBool(f.GetEnd()))
-	}
 	typeAndFlags := encodeBool(f.GetDUP())<<3 | encodeBool(f.GetsyncOnce())<<2 | encodeBool(f.GetRedDot())<<1 | encodeBool(f.GetNoPersist())
 	if f.GetFrameType() == CONNACK {
 		typeAndFlags = encodeBool(f.GetHasServerVersion())
@@ -42,8 +39,6 @@ func FramerFromUint8(v uint8) Framer {
 	switch p.FrameType {
 	case CONNACK:
 		p.HasServerVersion = (v & 0x01) > 0
-	case Chunk:
-		p.End = (v & 0x01) > 0
 	}
 
 	return p
@@ -127,7 +122,6 @@ const (
 	DISCONNECT                  // 请求断开连接
 	SUB                         // 订阅
 	SUBACK                      // 订阅确认
-	Chunk                       // 分片
 )
 
 func (p FrameType) String() string {
@@ -154,8 +148,6 @@ func (p FrameType) String() string {
 		return "SUB"
 	case SUBACK:
 		return "SUBACK"
-	case Chunk:
-		return "Chunk"
 	}
 	return fmt.Sprintf("UNKNOWN[%d]", p)
 }

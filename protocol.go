@@ -61,7 +61,6 @@ var packetDecodeMap = map[FrameType]PacketDecodeFunc{
 	DISCONNECT: decodeDisConnect,
 	SUB:        decodeSub,
 	SUBACK:     decodeSuback,
-	Chunk:      decodeChunk,
 }
 
 // var packetEncodeMap = map[PacketType]PacketEncodeFunc{
@@ -214,10 +213,6 @@ func (l *WKProto) encodeFrameWithWriter(w Writer, frame Frame, version uint8) er
 		packet := frame.(*SubackPacket)
 		l.encodeFrame(packet, enc, uint32(encodeSubackSize(packet, version)))
 		err = encodeSuback(packet, enc, version)
-	case Chunk:
-		packet := frame.(*ChunkPacket)
-		l.encodeFrame(packet, enc, uint32(encodeChunkSize(packet, version)))
-		err = encodeChunk(packet, enc, version)
 	}
 	if err != nil {
 		return err
