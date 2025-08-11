@@ -122,6 +122,7 @@ const (
 	DISCONNECT                  // 请求断开连接
 	SUB                         // 订阅
 	SUBACK                      // 订阅确认
+	EVENT                       // 事件
 )
 
 func (p FrameType) String() string {
@@ -148,6 +149,8 @@ func (p FrameType) String() string {
 		return "SUB"
 	case SUBACK:
 		return "SUBACK"
+	case EVENT:
+		return "EVENT"
 	}
 	return fmt.Sprintf("UNKNOWN[%d]", p)
 }
@@ -353,6 +356,7 @@ const (
 	MessageIDByteSize       = 8
 	MessageSeqByteSize      = 4
 	TimestampByteSize       = 4
+	BigTimestampByteSize    = 8
 	ActionByteSize          = 1
 	StreamIdByteSize        = 8
 	StreamFlagByteSize      = 1
